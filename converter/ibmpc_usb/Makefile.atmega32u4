@@ -1,4 +1,25 @@
+# To edit the keymap:
+# http://www.tmk-kbd.com/tmk_keyboard/editor/unimap/?ibmpc_usb_32u4
+#
+# This works with the MattairTech MT-DB-U4 and Pro Micro boards.
+# To flash the MattairTech, put the jumper on, press the reset button.
+# For the Pro Micro, short the RST+GND pins two times shortly.
+# Then run:
+#
+#     doas gmake -f Makefile.atmega32u4 program
+#
+PROGRAM_CMD = avrdude -p m32u4 -c avr109 -P /dev/cuaU0 -U flash:w:$(TARGET).hex
+
+export LC_ALL=C
+
+# Important so that Magic+Pause/Cmd24 will start the bootloader
+OPT_DEFS += -DBOOTLOADER_SIZE=512
+
 TARGET = ibmpc_usb_atmega32u4
 MCU = atmega32u4
+
+# Disable a few unneeded features...
+MOUSEKEY_ENABLE = no	# Mouse keys(+2200)
+EXTRAKEY_ENABLE = no	# Audio control and System control(+400)
 
 include Makefile

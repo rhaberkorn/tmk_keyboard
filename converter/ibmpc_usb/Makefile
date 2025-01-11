@@ -93,8 +93,8 @@ GCC_MAJOR = $(shell avr-gcc -dumpversion | cut -d. -f1)
 
 EXTRALDFLAGS = -Wl,--relax
 
-# GCC8-12: disable LTO with function-sections
-ifeq ($(GCC_MAJOR),$(filter $(GCC_MAJOR),8 9 10 11 12))
+# GCC8-14: disable LTO with function-sections
+ifeq ($(GCC_MAJOR),$(filter $(GCC_MAJOR),8 9 10 11 12 14))
     # disable feature to reduce size
     COMMAND_ENABLE = no
     EXTRACFLAGS += -fno-lto

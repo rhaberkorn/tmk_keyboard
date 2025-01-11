@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "print.h"
 #include "util.h"
@@ -72,12 +73,56 @@ uint8_t matrix_scan(void)
 #endif
 }
 
+/**
+ * Configure PB5 as a PWM pin via Timer 1 (16-bit resolution).
+ * This will play a tone on the attached buzzer.
+ *
+ * @param freq Frequency to waveform to output.
+ */
+static void pwm_pb5_tone(uint16_t freq)
+{
+    if (!freq) {
+        TCCR1B = 0;
+        return;
+    }
+
+    /* Fast PWM on OC1x, inverted duty cycle, TOP = ICR1 */
+    TCCR1A |= (0b11 << 3*2) | 0b10;
+    /* stop timer */
+    TCCR1B = 0;
+    /* TOP for PWM - full 16 Bit */
+    ICR1 = 0xFFFF;
+    /*
+     * Prescaling: 256.
+     * This allows for frequencies between 0.47 Ht and 31 kHz.
+     */
+    TCCR1B = 0b00001100;
+
+    /*
+     * The frequency of the resulting signal is calculated as follows:
+     * F_CPU / PRESCALER / (CYCLE_LENGTH+1) / 2
+     */
+    OCR1A = (F_CPU/2/8) / freq - 1;
+
+    /* PB5 must be an output pin */
+    DDRB |= (1 << DDB5);
+}
+
 void led_set(uint8_t usb_led)
 {
     converter0.set_led(usb_led);
 #if defined(IBMPC_CLOCK_BIT1) && defined(IBMPC_DATA_BIT1)
     converter1.set_led(usb_led);
 #endif
+
+    /*
+     * The Kana LED is not actually displayed by the
+     * Siemens F500 itself.
+     *
+     * But we use it for triggering a beeper.
+     * This can be controlled from Linux/FreeBSD userspace.
+     */
+    pwm_pb5_tone(usb_led & (1 << USB_LED_KANA) ? 50 : 0);
 }
 
 extern const action_t actionmaps[][UNIMAP_ROWS][UNIMAP_COLS];

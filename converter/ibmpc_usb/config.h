@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PRODUCT_ID      0x1BEE
 #define DEVICE_VER      0x0201
 #define MANUFACTURER    TMK
-#define PRODUCT         IBM PC keyboard converter
+#define PRODUCT         Siemens F500 Converter
 
 
 /* matrix size */
