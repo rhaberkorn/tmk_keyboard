@@ -74,20 +74,20 @@ uint8_t matrix_scan(void)
 }
 
 /**
- * Configure PB5 as a PWM pin via Timer 1 (16-bit resolution).
+ * Configure PB6 as a PWM pin via Timer 1 (16-bit resolution).
  * This will play a tone on the attached buzzer.
  *
  * @param freq Frequency to waveform to output.
  */
-static void pwm_pb5_tone(uint16_t freq)
+static void pwm_pb6_tone(uint16_t freq)
 {
     if (!freq) {
         TCCR1B = 0;
         return;
     }
 
-    /* Fast PWM on OC1x, inverted duty cycle, TOP = ICR1 */
-    TCCR1A |= (0b11 << 3*2) | 0b10;
+    /* Fast PWM on OC1B, inverted duty cycle, TOP = ICR1 */
+    TCCR1A |= (0b11 << (3-1)*2) | 0b10;
     /* stop timer */
     TCCR1B = 0;
     /* TOP for PWM - full 16 Bit */
@@ -102,10 +102,10 @@ static void pwm_pb5_tone(uint16_t freq)
      * The frequency of the resulting signal is calculated as follows:
      * F_CPU / PRESCALER / (CYCLE_LENGTH+1) / 2
      */
-    OCR1A = (F_CPU/2/8) / freq - 1;
+    OCR1B = (F_CPU/2/8) / freq - 1;
 
-    /* PB5 must be an output pin */
-    DDRB |= (1 << DDB5);
+    /* PB6 must be an output pin */
+    DDRB |= (1 << DDB6);
 }
 
 void led_set(uint8_t usb_led)
@@ -122,7 +122,7 @@ void led_set(uint8_t usb_led)
      * But we use it for triggering a beeper.
      * This can be controlled from Linux/FreeBSD userspace.
      */
-    pwm_pb5_tone(usb_led & (1 << USB_LED_KANA) ? 50 : 0);
+    pwm_pb6_tone(usb_led & (1 << USB_LED_KANA) ? 50 : 0);
 }
 
 extern const action_t actionmaps[][UNIMAP_ROWS][UNIMAP_COLS];
